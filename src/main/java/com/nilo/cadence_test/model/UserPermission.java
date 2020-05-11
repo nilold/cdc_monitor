@@ -4,32 +4,46 @@ import javax.persistence.*;
 
 @Entity
 public class UserPermission {
+    public enum PERMISSION {
+        USER,
+        ADMIN
+    }
+
     @EmbeddedId
-    UserPermissionId userPermissionId;
+    UserComputerId id;
 
     @ManyToOne
     @MapsId("user_id")
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     User user;
 
     @ManyToOne
     @MapsId("computer_id")
-    @JoinColumn(name="computer_id")
+    @JoinColumn(name = "computer_id")
     Computer computer;
 
     String permission;
+    boolean revoked = false;
 
     public UserPermission() {
     }
 
-    public UserPermission(User user, Computer computer, String permission) {
-        this.user = user;
-        this.computer = computer;
-        this.permission = permission;
+    public UserPermission(User user, Computer computer) {
+        this(user, computer, PERMISSION.USER);
     }
 
-    public UserPermissionId getUserPermissionId() {
-        return userPermissionId;
+    public UserPermission(User user, Computer computer, PERMISSION permission) {
+        this.user = user;
+        this.computer = computer;
+        this.permission = permission.toString();
+    }
+
+    public boolean isAdmin(){
+        return getPermission().equals(PERMISSION.ADMIN.toString());
+    }
+
+    public UserComputerId getId() {
+        return id;
     }
 
     public User getUser() {
@@ -42,5 +56,17 @@ public class UserPermission {
 
     public String getPermission() {
         return permission;
+    }
+
+    public void setPermission(PERMISSION permission) {
+        this.permission = permission.toString();
+    }
+
+    public boolean isRevoked() {
+        return revoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
     }
 }

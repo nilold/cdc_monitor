@@ -6,14 +6,19 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class UserPermissionId implements Serializable {
+public class UserComputerId implements Serializable {
     @Column(name = "user_id")
     Integer userId;
 
     @Column(name = "computer_id")
     Integer computerId;
 
-    public UserPermissionId() {
+    public UserComputerId() {
+    }
+
+    public UserComputerId(Integer userId, Integer computerId){
+        this.userId = userId;
+        this.computerId = computerId;
     }
 
     public Integer getUserId() {
@@ -36,7 +41,7 @@ public class UserPermissionId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserPermissionId that = (UserPermissionId) o;
+        UserComputerId that = (UserComputerId) o;
         return userId.equals(that.userId) &&
                 computerId.equals(that.computerId);
     }
