@@ -21,18 +21,18 @@ public class MonitorService {
     @Autowired
     DowntimeService downtimeService;
 
-    public boolean setUserPermission(User user, Computer computer){
+    public boolean setUserPermission(User user, Computer computer) {
         Optional<UserPermission> userPermissionOptional = getUserPermission(user, computer);
         UserPermission userPermission;
 
-        if(userPermissionOptional.isPresent()){
+        if (userPermissionOptional.isPresent()) {
             userPermission = userPermissionOptional.get();
-            if(userPermission.isRevoked()){
+            if (userPermission.isRevoked()) {
                 userPermission.setRevoked(false);
-            }else{
+            } else {
                 return false; // nothing to do
             }
-        }else{
+        } else {
             userPermission = new UserPermission(user, computer);
         }
 
@@ -40,17 +40,17 @@ public class MonitorService {
         return true;
     }
 
-    public boolean setAdminUserPermission(User user, Computer computer){
+    public boolean setAdminUserPermission(User user, Computer computer) {
         Optional<UserPermission> userPermissionOptional = getUserPermission(user, computer);
         UserPermission userPermission;
 
-        if(userPermissionOptional.isPresent()){
+        if (userPermissionOptional.isPresent()) {
             userPermission = userPermissionOptional.get();
 
-            if(userPermission.isAdmin()) return false; // nothing to do
+            if (userPermission.isAdmin()) return false; // nothing to do
 
             userPermission.setPermission(UserPermission.PERMISSION.ADMIN);
-        }else{
+        } else {
             userPermission = new UserPermission(user, computer, UserPermission.PERMISSION.ADMIN);
         }
 
@@ -59,14 +59,16 @@ public class MonitorService {
         return true;
     }
 
-    public Optional<UserPermission> getUserPermission(User user, Computer computer){
+    public Optional<UserPermission> getUserPermission(User user, Computer computer) {
         return userPermissionService.findById(new UserComputerId(user.getId(), computer.getId()));
     }
 
     /**
-     * @param user user who owns the session
+     * @param user     user who owns the session
      * @param computer computer where the session will start
      * @return false if a session is already opened for this user in this computer. True otherwise.
+     * There will be no effect if this function is invoked if there is already an opened session
+     * for this user in this computer.
      */
     public boolean startUserSession(User user, Computer computer) {
         try {
@@ -81,11 +83,13 @@ public class MonitorService {
     }
 
     /**
-     * @param user user with opened session
+     * @param user     user with opened session
      * @param computer computer where session is opened
      * @return Session closing date if an opened session was found. Empty otherwise.
+     * There will be no effect if this function is invoked if there is no opened session
+     * for this user in this computer
      */
-    public Optional<Date> closeUserSession(User user, Computer computer){
+    public Optional<Date> closeUserSession(User user, Computer computer) {
         Optional<Date> endAt = Optional.empty();
 
         try {
@@ -97,7 +101,7 @@ public class MonitorService {
         Optional<UserAccess> userAccessOptional = userAccessService
                 .getLastUserOpenedAccess(user.getId(), computer.getId());
 
-        if(userAccessOptional.isPresent()){
+        if (userAccessOptional.isPresent()) {
             Date date = new Date();
             userAccessOptional.get().setEndAt(date);
             userAccessService.save(userAccessOptional.get());
@@ -112,8 +116,8 @@ public class MonitorService {
      * @return true if computer had no started downtime, false otherwise.
      * There will be no effect if this function is invoked for a computer with an already started downtime
      */
-    public boolean startDowntime(Computer computer){
-        if(downtimeService.getCurrentDowntime(computer.getId()).isPresent())
+    public boolean startDowntime(Computer computer) {
+        if (downtimeService.getCurrentDowntime(computer.getId()).isPresent())
             return false;
 
         return downtimeService.save(new Downtime(computer)) != null;
@@ -122,13 +126,14 @@ public class MonitorService {
     /**
      * @param computer computer which downtime's finished
      * @return Downtime end date if a started downtime was found. Empty otherwise.
+     * There will be no effect if this function is invoked for a computer with no started downtime
      */
-    public Optional<Date> finishDownTime(Computer computer){
+    public Optional<Date> finishDownTime(Computer computer) {
         Optional<Date> endAt = Optional.empty();
 
         Optional<Downtime> downtimeOptional = downtimeService.getCurrentDowntime(computer.getId());
 
-        if(downtimeOptional.isPresent()){
+        if (downtimeOptional.isPresent()) {
             Date date = new Date();
             downtimeOptional.get().setEndAt(date);
             downtimeService.save(downtimeOptional.get());

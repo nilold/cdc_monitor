@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class UserPermissionService implements CrudService<UserPermission, UserComputerId>{
+public class UserPermissionService implements CrudService<UserPermission, UserComputerId> {
     @Autowired
     UserPermissionRepository userPermissionRepository;
 

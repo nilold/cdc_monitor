@@ -5,7 +5,7 @@ import javax.persistence.Embeddable;
 import java.util.Objects;
 
 @Embeddable
-public class UserComputerStartId extends UserComputerId{
+public class UserComputerStartId extends UserComputerId {
     @Column(name = "start_id")
     Long startId;
 

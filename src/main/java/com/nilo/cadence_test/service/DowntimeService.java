@@ -1,6 +1,5 @@
 package com.nilo.cadence_test.service;
 
-import com.nilo.cadence_test.model.Computer;
 import com.nilo.cadence_test.model.Downtime;
 import com.nilo.cadence_test.model.id.ComputerStartId;
 import com.nilo.cadence_test.repository.DowntimeRepository;
@@ -34,7 +33,7 @@ public class DowntimeService implements CrudService<Downtime, ComputerStartId> {
         downtimeRepository.deleteById(id);
     }
 
-    protected Optional<Downtime> getCurrentDowntime(Integer computerId){
+    protected Optional<Downtime> getCurrentDowntime(Integer computerId) {
         return downtimeRepository.findFirstByComputerIdAndEndAtIsNullOrderByStartAtDesc(computerId);
     }
 }

@@ -16,7 +16,7 @@ public class UserComputerId implements Serializable {
     public UserComputerId() {
     }
 
-    public UserComputerId(Integer userId, Integer computerId){
+    public UserComputerId(Integer userId, Integer computerId) {
         this.userId = userId;
         this.computerId = computerId;
     }

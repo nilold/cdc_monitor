@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
-public class ComputerService implements CrudService<Computer, Integer>{
+public class ComputerService implements CrudService<Computer, Integer> {
     @Autowired
     ComputerRepository computerRepository;
 

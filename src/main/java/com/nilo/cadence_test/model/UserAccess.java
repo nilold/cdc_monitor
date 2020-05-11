@@ -20,11 +20,11 @@ public class UserAccess {
     @JoinColumn(name = "computer_id")
     Computer computer;
 
-    @Column(name="start_at")
+    @Column(name = "start_at")
     @Temporal(TemporalType.TIMESTAMP)
     Date startAt;
 
-    @Column(name="end_at")
+    @Column(name = "end_at")
     @Temporal(TemporalType.TIMESTAMP)
     Date endAt;
 
