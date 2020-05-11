@@ -1,4 +1,4 @@
-package com.nilo.cadence_test.model;
+package com.nilo.cadence_test.model.id;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

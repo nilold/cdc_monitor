@@ -3,6 +3,7 @@ package com.nilo.cadence_test.service;
 import com.nilo.cadence_test.exceptions.NoSessionException;
 import com.nilo.cadence_test.exceptions.OpenedSessionException;
 import com.nilo.cadence_test.model.*;
+import com.nilo.cadence_test.model.id.UserComputerId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ public class MonitorService {
 
     @Autowired
     UserAccessService userAccessService;
+
+    @Autowired
+    DowntimeService downtimeService;
 
     public boolean setUserPermission(User user, Computer computer){
         Optional<UserPermission> userPermissionOptional = getUserPermission(user, computer);
@@ -66,7 +70,7 @@ public class MonitorService {
      */
     public boolean startUserSession(User user, Computer computer) {
         try {
-            assertSessionIsClosed(user, computer);
+            userAccessService.assertSessionIsClosed(user.getId(), computer.getId());
         } catch (OpenedSessionException e) {
             e.printStackTrace();
             return false;
@@ -76,39 +80,61 @@ public class MonitorService {
         return true;
     }
 
+    /**
+     * @param user user with opened session
+     * @param computer computer where session is opened
+     * @return Session closing date if an opened session was found. Empty otherwise.
+     */
     public Optional<Date> closeUserSession(User user, Computer computer){
-        Optional<Date> now = Optional.empty();
+        Optional<Date> endAt = Optional.empty();
 
         try {
-            assertSessionIsOpened(user, computer);
+            userAccessService.assertSessionIsOpened(user.getId(), computer.getId());
         } catch (NoSessionException e) {
             e.printStackTrace();
         }
 
         Optional<UserAccess> userAccessOptional = userAccessService
-                .getLastUserOpennedAccess(user.getId(), computer.getId());
+                .getLastUserOpenedAccess(user.getId(), computer.getId());
 
         if(userAccessOptional.isPresent()){
             Date date = new Date();
             userAccessOptional.get().setEndAt(date);
             userAccessService.save(userAccessOptional.get());
-            now = Optional.of(date);
+            endAt = Optional.of(date);
         }
 
-        return now;
+        return endAt;
     }
 
-    private void assertSessionIsClosed(User user, Computer computer) throws OpenedSessionException {
-        Optional<UserAccess> userAccessOptional = userAccessService
-                .getLastUserOpennedAccess(user.getId(), computer.getId());
-        if(userAccessOptional.isPresent())
-            throw new OpenedSessionException(userAccessOptional.get());
+    /**
+     * @param computer computer to register the start of a downtime
+     * @return true if computer had no started downtime, false otherwise.
+     * There will be no effect if this function is invoked for a computer with an already started downtime
+     */
+    public boolean startDowntime(Computer computer){
+        if(downtimeService.getCurrentDowntime(computer.getId()).isPresent())
+            return false;
+
+        return downtimeService.save(new Downtime(computer)) != null;
     }
 
-    private void assertSessionIsOpened(User user, Computer computer) throws NoSessionException {
-        Optional<UserAccess> userAccessOptional = userAccessService
-                .getLastUserOpennedAccess(user.getId(), computer.getId());
-        if(userAccessOptional.isEmpty())
-            throw new NoSessionException(user.getId(), computer.getId());
+    /**
+     * @param computer computer which downtime's finished
+     * @return Downtime end date if a started downtime was found. Empty otherwise.
+     */
+    public Optional<Date> finishDownTime(Computer computer){
+        Optional<Date> endAt = Optional.empty();
+
+        Optional<Downtime> downtimeOptional = downtimeService.getCurrentDowntime(computer.getId());
+
+        if(downtimeOptional.isPresent()){
+            Date date = new Date();
+            downtimeOptional.get().setEndAt(date);
+            downtimeService.save(downtimeOptional.get());
+            endAt = Optional.of(date);
+        }
+
+        return endAt;
     }
 }

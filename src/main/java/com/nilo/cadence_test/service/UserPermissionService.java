@@ -1,7 +1,7 @@
 package com.nilo.cadence_test.service;
 
 import com.nilo.cadence_test.model.UserPermission;
-import com.nilo.cadence_test.model.UserComputerId;
+import com.nilo.cadence_test.model.id.UserComputerId;
 import com.nilo.cadence_test.repository.UserPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

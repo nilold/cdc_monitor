@@ -1,5 +1,7 @@
 package com.nilo.cadence_test.model;
 
+import com.nilo.cadence_test.model.id.UserComputerId;
+
 import javax.persistence.*;
 
 @Entity

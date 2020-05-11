@@ -1,19 +1,14 @@
 package com.nilo.cadence_test.model;
 
-import com.nilo.cadence_test.model.id.UserComputerStartId;
+import com.nilo.cadence_test.model.id.ComputerStartId;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class UserAccess {
+public class Downtime {
     @EmbeddedId
-    UserComputerStartId id;
-
-    @ManyToOne
-    @MapsId("user_id")
-    @JoinColumn(name = "user_id")
-    User user;
+    ComputerStartId id;
 
     @ManyToOne
     @MapsId("computer_id")
@@ -28,22 +23,16 @@ public class UserAccess {
     @Temporal(TemporalType.TIMESTAMP)
     Date endAt;
 
-
-    public UserAccess() {
+    public Downtime() {
     }
 
-    public UserAccess(User user, Computer computer) {
-        this.user = user;
+    public Downtime(Computer computer) {
         this.computer = computer;
         this.startAt = new Date();
     }
 
-    public UserComputerStartId getId() {
+    public ComputerStartId getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public Computer getComputer() {

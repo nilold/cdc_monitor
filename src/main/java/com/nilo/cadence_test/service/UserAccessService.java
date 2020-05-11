@@ -1,7 +1,11 @@
 package com.nilo.cadence_test.service;
 
+import com.nilo.cadence_test.exceptions.NoSessionException;
+import com.nilo.cadence_test.exceptions.OpenedSessionException;
+import com.nilo.cadence_test.model.Computer;
+import com.nilo.cadence_test.model.User;
 import com.nilo.cadence_test.model.UserAccess;
-import com.nilo.cadence_test.model.UserComputerStartId;
+import com.nilo.cadence_test.model.id.UserComputerStartId;
 import com.nilo.cadence_test.repository.UserAccessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +37,7 @@ public class UserAccessService implements CrudService<UserAccess, UserComputerSt
         userAccessRepository.deleteById(id);
     }
 
-    public Optional<UserAccess> getLastUserOpennedAccess(Integer userId, Integer computerId){
+    protected Optional<UserAccess> getLastUserOpenedAccess(Integer userId, Integer computerId){
         Optional<UserAccess> lastUserAccessOptional = userAccessRepository
                 .findFirstByUserIdAndComputerIdOrderByStartAtDesc(userId, computerId);
 
@@ -42,5 +46,17 @@ public class UserAccessService implements CrudService<UserAccess, UserComputerSt
         }
 
         return Optional.empty();
+    }
+
+    protected void assertSessionIsClosed(Integer userId, Integer computerId) throws OpenedSessionException {
+        Optional<UserAccess> userAccessOptional = getLastUserOpenedAccess(userId, computerId);
+        if(userAccessOptional.isPresent())
+            throw new OpenedSessionException(userAccessOptional.get());
+    }
+
+    protected void assertSessionIsOpened(Integer userId, Integer computerId) throws NoSessionException {
+        Optional<UserAccess> userAccessOptional = getLastUserOpenedAccess(userId, computerId);
+        if(userAccessOptional.isEmpty())
+            throw new NoSessionException(userId, computerId);
     }
 }
