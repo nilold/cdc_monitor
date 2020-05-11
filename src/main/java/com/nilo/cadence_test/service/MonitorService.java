@@ -1,10 +1,12 @@
 package com.nilo.cadence_test.service;
 
+import com.nilo.cadence_test.exceptions.NoSessionException;
 import com.nilo.cadence_test.exceptions.OpenedSessionException;
 import com.nilo.cadence_test.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -74,14 +76,39 @@ public class MonitorService {
         return true;
     }
 
+    public Optional<Date> closeUserSession(User user, Computer computer){
+        Optional<Date> now = Optional.empty();
+
+        try {
+            assertSessionIsOpened(user, computer);
+        } catch (NoSessionException e) {
+            e.printStackTrace();
+        }
+
+        Optional<UserAccess> userAccessOptional = userAccessService
+                .getLastUserOpennedAccess(user.getId(), computer.getId());
+
+        if(userAccessOptional.isPresent()){
+            Date date = new Date();
+            userAccessOptional.get().setEndAt(date);
+            userAccessService.save(userAccessOptional.get());
+            now = Optional.of(date);
+        }
+
+        return now;
+    }
+
     private void assertSessionIsClosed(User user, Computer computer) throws OpenedSessionException {
         Optional<UserAccess> userAccessOptional = userAccessService
                 .getLastUserOpennedAccess(user.getId(), computer.getId());
         if(userAccessOptional.isPresent())
             throw new OpenedSessionException(userAccessOptional.get());
-
-
     }
 
-
+    private void assertSessionIsOpened(User user, Computer computer) throws NoSessionException {
+        Optional<UserAccess> userAccessOptional = userAccessService
+                .getLastUserOpennedAccess(user.getId(), computer.getId());
+        if(userAccessOptional.isEmpty())
+            throw new NoSessionException(user.getId(), computer.getId());
+    }
 }

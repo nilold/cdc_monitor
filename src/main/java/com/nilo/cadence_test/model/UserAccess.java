@@ -55,4 +55,8 @@ public class UserAccess {
     public Date getEndAt() {
         return endAt;
     }
+
+    public void setEndAt(Date endAt) {
+        this.endAt = endAt;
+    }
 }
